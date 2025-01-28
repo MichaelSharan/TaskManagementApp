@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TaskManagementApp.Models;
 
 namespace TaskManagementApp.Data
 {
@@ -9,5 +11,8 @@ namespace TaskManagementApp.Data
             : base(options)
         {
         }
+
+        public DbSet<Test> Tests { get; set; }
+        public DbSet<TestResult> TestResults { get; set; }
     }
 }

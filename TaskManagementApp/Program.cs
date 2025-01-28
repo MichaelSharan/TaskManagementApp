@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApp.Data;
+using TaskManagementApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,5 +40,15 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    if (db.TestResults.Count() < 2)
+    {
+        db.TestResults.Add(new TestResult { Id = "565465g645f656", Input = 5, Output = 1 });
+        db.SaveChanges();
+    }
+}
 
 app.Run();
