@@ -49,21 +49,34 @@ namespace TaskManagementApp.Controllers
             return View();
         }
 
-        // POST: TestResults/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// POST: Tests/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,Input,Output")] TestResult testResult)
+        public async Task<IActionResult> Create(int input)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(testResult);
+                // Получение текущего пользователя
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                // Генерация нового теста
+                var testResult = new TestResult
+                {
+                    Id = Guid.NewGuid().ToString(), // Генерация уникального идентификатора
+                    Input = input,                 // Полученное значение из формы
+                    Output = 5,                    // Временное значение, пока не реализован алгоритм
+                    UserId = userId              // ID текущего пользователя
+                };
+
+                _context.TestResults.Add(testResult);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                return RedirectToAction(nameof(Index)); // Возврат к списку тестов
             }
-            return View(testResult);
+
+            return View();
         }
+
 
         // GET: TestResults/Edit/5
         public async Task<IActionResult> Edit(string id)
