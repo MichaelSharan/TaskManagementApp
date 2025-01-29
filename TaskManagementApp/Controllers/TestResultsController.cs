@@ -62,7 +62,7 @@ namespace TaskManagementApp.Controllers
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
                 // Вызываем Python для вычисления Output
-                int output = countNumberService.CalculateOutput(input);
+                string output = countNumberService.CalculateLargestOddNumber(input + "");
 
                 // Генерация нового теста
                 var testResult = new TestResult

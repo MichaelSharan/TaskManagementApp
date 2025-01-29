@@ -1,37 +1,46 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Linq;
 
 public class CountNumberService
 {
-    private readonly string _pythonPath = "python"; // Убедись, что Python доступен в PATH
-    private readonly string _scriptPath = "count_number.py"; // Путь к Python-скрипту
-
-    public int CalculateOutput(int inputValue)
+    public string CalculateLargestOddNumber(string input)
     {
-        try
+        if (string.IsNullOrWhiteSpace(input))
         {
-            // Запускаем Python-скрипт с аргументом
-            var processStartInfo = new ProcessStartInfo
-            {
-                FileName = _pythonPath,
-                Arguments = $"{_scriptPath} {inputValue}",
-                RedirectStandardOutput = true, // Перенаправление вывода в C#
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+            return "NO";
+        }
 
-            using (var process = new Process { StartInfo = processStartInfo })
-            {
-                process.Start();
-                string result = process.StandardOutput.ReadToEnd(); // Читаем результат
-                process.WaitForExit();
+        // Преобразуем строку в массив символов и сортируем по убыванию
+        char[] digits = input.OrderByDescending(c => c).ToArray();
 
-                return int.Parse(result.Trim()); // Конвертируем в число
+        // Ищем первую нечётную цифру с конца массива
+        int oddIndex = -1;
+        for (int i = digits.Length - 1; i >= 0; i--)
+        {
+            if ((digits[i] - '0') % 2 == 1) // Преобразуем в число и проверяем на нечётность
+            {
+                oddIndex = i;
+                break;
             }
         }
-        catch (Exception ex)
+
+        // Если нечётной цифры нет, возвращаем "NO"
+        if (oddIndex == -1)
         {
-            Console.WriteLine($"Ошибка при вызове Python: {ex.Message}");
-            return -1; // Возвращаем ошибку
+            return "NO";
         }
+
+        // Перемещаем нечётную цифру в конец массива
+        char oddDigit = digits[oddIndex];
+        for (int i = oddIndex; i < digits.Length - 1; i++)
+        {
+            digits[i] = digits[i + 1];
+        }
+        digits[digits.Length - 1] = oddDigit;
+
+        // Убираем ведущие нули
+        string result = new string(digits).TrimStart('0');
+
+        return string.IsNullOrEmpty(result) ? "NO" : result;
     }
 }
