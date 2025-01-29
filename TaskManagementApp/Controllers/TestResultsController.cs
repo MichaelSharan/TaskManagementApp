@@ -13,10 +13,12 @@ namespace TaskManagementApp.Controllers
     public class TestResultsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly CountNumberService countNumberService;
 
-        public TestResultsController(ApplicationDbContext context)
+        public TestResultsController(ApplicationDbContext context, CountNumberService countNumberService)
         {
             _context = context;
+            this.countNumberService = countNumberService;
         }
 
         // GET: TestResults
@@ -59,12 +61,15 @@ namespace TaskManagementApp.Controllers
                 // Получение текущего пользователя
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
+                // Вызываем Python для вычисления Output
+                int output = countNumberService.CalculateOutput(input);
+
                 // Генерация нового теста
                 var testResult = new TestResult
                 {
                     Id = Guid.NewGuid().ToString(), // Генерация уникального идентификатора
                     Input = input,                 // Полученное значение из формы
-                    Output = 5,                    // Временное значение, пока не реализован алгоритм
+                    Output = output,                    // Временное значение, пока не реализован алгоритм
                     UserId = userId              // ID текущего пользователя
                 };
 
