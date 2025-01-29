@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-
-public class CountNumberService
+﻿public class CountNumberService
 {
     public string CalculateLargestOddNumber(string input)
     {
