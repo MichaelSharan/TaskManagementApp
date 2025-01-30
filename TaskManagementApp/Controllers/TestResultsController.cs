@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManagementApp.Controllers
 {
@@ -22,6 +23,7 @@ namespace TaskManagementApp.Controllers
         }
 
         // GET: TestResults
+        [Authorize(Roles = "Admin")] // Только админы могут удалять
         public async Task<IActionResult> Index()
         {
             return View(await _context.TestResults.ToListAsync());
@@ -84,6 +86,7 @@ namespace TaskManagementApp.Controllers
 
 
         // GET: TestResults/Edit/5
+        [Authorize(Roles = "Admin")] // Только админы могут удалять
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -102,6 +105,7 @@ namespace TaskManagementApp.Controllers
         // POST: TestResults/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("Id,UserId,Input,Output")] TestResult testResult)
@@ -135,6 +139,7 @@ namespace TaskManagementApp.Controllers
         }
 
         // GET: TestResults/Delete/5
+        [Authorize(Roles = "Admin")] 
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -153,6 +158,7 @@ namespace TaskManagementApp.Controllers
         }
 
         // POST: TestResults/Delete/5
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
