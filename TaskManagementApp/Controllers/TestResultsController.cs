@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
@@ -11,7 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManagementApp.Controllers
 {
-    public class TestResultsController : Controller
+    [Route("api/[controller]")] // Указывает, что этот контроллер работает через "api/testresults"
+    [ApiController] // Делает контроллер API-контроллером
+    [Authorize]
+    public class TestResultsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly CountNumberService countNumberService;
@@ -22,160 +20,54 @@ namespace TaskManagementApp.Controllers
             this.countNumberService = countNumberService;
         }
 
-        // GET: TestResults
-        [Authorize(Roles = "Admin")] // Только админы могут удалять
-        public async Task<IActionResult> Index()
+        // GET: api/testresults
+        [HttpGet]
+        public async Task<IActionResult> GetAllTestResults()
         {
-            return View(await _context.TestResults.ToListAsync());
+            return Ok(await _context.TestResults.ToListAsync());
         }
 
-        // GET: TestResults/Details/5
-        public async Task<IActionResult> Details(string id)
+        // GET: api/testresults/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTestResult(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var testResult = await _context.TestResults
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (testResult == null)
-            {
-                return NotFound();
-            }
-
-            return View(testResult);
-        }
-
-        // GET: TestResults/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        /// POST: Tests/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int input)
-        {
-            if (ModelState.IsValid)
-            {
-                // Получение текущего пользователя
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-                // Вызываем Python для вычисления Output
-                string output = countNumberService.CalculateLargestOddNumber(input + "");
-
-                // Генерация нового теста
-                var testResult = new TestResult
-                {
-                    Id = Guid.NewGuid().ToString(), // Генерация уникального идентификатора
-                    Input = input,                 // Полученное значение из формы
-                    Output = output,                    // Временное значение, пока не реализован алгоритм
-                    UserId = userId              // ID текущего пользователя
-                };
-
-                _context.TestResults.Add(testResult);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index)); // Возврат к списку тестов
-            }
-
-            return View();
-        }
-
-
-        // GET: TestResults/Edit/5
-        [Authorize(Roles = "Admin")] // Только админы могут удалять
-        public async Task<IActionResult> Edit(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var testResult = await _context.TestResults.FindAsync(id);
             if (testResult == null)
             {
                 return NotFound();
             }
-            return View(testResult);
+            return Ok(testResult);
         }
 
-        // POST: TestResults/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Admin")]
+        // POST: api/testresults
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,UserId,Input,Output")] TestResult testResult)
+        public async Task<IActionResult> CreateTestResult([FromBody] TestResult testResult)
         {
-            if (id != testResult.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(testResult);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TestResultExists(testResult.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(testResult);
-        }
-
-        // GET: TestResults/Delete/5
-        [Authorize(Roles = "Admin")] 
-        public async Task<IActionResult> Delete(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var testResult = await _context.TestResults
-                .FirstOrDefaultAsync(m => m.Id == id);
             if (testResult == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            return View(testResult);
-        }
-
-        // POST: TestResults/Delete/5
-        [Authorize(Roles = "Admin")]
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            var testResult = await _context.TestResults.FindAsync(id);
-            if (testResult != null)
-            {
-                _context.TestResults.Remove(testResult);
-            }
-
+            _context.TestResults.Add(testResult);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return CreatedAtAction(nameof(GetTestResult), new { id = testResult.Id }, testResult);
         }
 
-        private bool TestResultExists(string id)
+        // DELETE: api/testresults/5
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteTestResult(string id)
         {
-            return _context.TestResults.Any(e => e.Id == id);
+            var testResult = await _context.TestResults.FindAsync(id);
+            if (testResult == null)
+            {
+                return NotFound();
+            }
+
+            _context.TestResults.Remove(testResult);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }

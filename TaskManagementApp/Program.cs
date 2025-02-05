@@ -40,7 +40,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddControllersWithViews();
+//builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
+
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<CountNumberService>();
 
@@ -68,6 +70,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllers(); // Включает маршрутизацию для API-контроллеров
+
 app.MapRazorPages();
 
 // Запуск DataSeeder
