@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManagementApp.Controllers
 {
-    [Route("api/[controller]")] // Указывает, что этот контроллер работает через "api/testresults"
-    [ApiController] // Делает контроллер API-контроллером
+    [Route("api/[controller]")]
+    [ApiController]
     [Authorize]
     public class TestResultsController : ControllerBase
     {
@@ -71,6 +71,39 @@ namespace TaskManagementApp.Controllers
             return CreatedAtAction(nameof(GetTestResult), new { id = testResult.Id }, testResult);
         }
 
+        // PUT: api/testresults/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTestResult(string id, [FromBody] UpdateTestResultRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Данные не переданы.");
+            }
+
+            var testResult = await _context.TestResults.FindAsync(id);
+            if (testResult == null)
+            {
+                return NotFound();
+            }
+
+            // Проверяем, что текущий пользователь - владелец теста или админ
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var isAdmin = User.IsInRole("Admin");
+
+            if (testResult.UserId != userId && !isAdmin)
+            {
+                return Forbid("Вы не можете редактировать этот тест.");
+            }
+
+            // Обновляем только поля, которые разрешены
+            testResult.Input = request.Input;
+            testResult.Output = request.Output;
+
+            _context.TestResults.Update(testResult);
+            await _context.SaveChangesAsync();
+
+            return Ok(testResult);
+        }
 
         // DELETE: api/testresults/5
         [HttpDelete("{id}")]

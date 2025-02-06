@@ -13,5 +13,9 @@
         public int Input { get; set; }
     }
 
-
+    public class UpdateTestResultRequest
+    {
+        public int Input { get; set; }
+        public string Output { get; set; } = string.Empty;
+    }
 }
