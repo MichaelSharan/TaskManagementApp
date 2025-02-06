@@ -8,6 +8,7 @@ namespace TaskManagementApp.Controllers
 {
     [Route("api/[controller]")] // Указывает, что этот контроллер работает через "api/testresults"
     [ApiController] // Делает контроллер API-контроллером
+    [Authorize]
     public class TestResultsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

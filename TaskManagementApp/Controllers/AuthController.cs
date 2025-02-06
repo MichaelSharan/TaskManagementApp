@@ -36,10 +36,22 @@ namespace TaskManagementApp.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
+            // Назначаем роль "User" по умолчанию
+            await _userManager.AddToRoleAsync(user, "User");
+
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            return Ok(new { token = GenerateJwtToken(user) });
+            // Получаем список ролей
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new
+            {
+                token = GenerateJwtToken(user),
+                userId = user.Id,
+                roles = roles
+            });
         }
+
 
         // Вход пользователя
         [HttpPost("login")]
@@ -51,8 +63,16 @@ namespace TaskManagementApp.Controllers
                 return Unauthorized();
 
             var user = await _userManager.FindByNameAsync(model.Email);
-            return Ok(new { token = GenerateJwtToken(user) });
+            var roles = await _userManager.GetRolesAsync(user); // Получаем роли пользователя
+
+            return Ok(new
+            {
+                token = GenerateJwtToken(user), // Возвращаем токен
+                userId = user.Id,               // ID пользователя
+                roles = roles                    // Список его ролей
+            });
         }
+
 
         // Генерация JWT токена
         private string GenerateJwtToken(IdentityUser user)
