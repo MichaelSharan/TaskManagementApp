@@ -8,4 +8,10 @@
         public required string Output { get; set; }
     }
 
+    public class CreateTestResultRequest
+    {
+        public int Input { get; set; }
+    }
+
+
 }

@@ -8,7 +8,6 @@ namespace TaskManagementApp.Controllers
 {
     [Route("api/[controller]")] // Указывает, что этот контроллер работает через "api/testresults"
     [ApiController] // Делает контроллер API-контроллером
-    [Authorize]
     public class TestResultsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -41,18 +40,36 @@ namespace TaskManagementApp.Controllers
 
         // POST: api/testresults
         [HttpPost]
-        public async Task<IActionResult> CreateTestResult([FromBody] TestResult testResult)
+        public async Task<IActionResult> CreateTestResult([FromBody] CreateTestResultRequest request)
         {
-            if (testResult == null)
+            if (request == null)
             {
-                return BadRequest();
+                return BadRequest("Данные не переданы.");
             }
+
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("Пользователь не авторизован.");
+            }
+
+            string output = countNumberService.CalculateLargestOddNumber(request.Input.ToString());
+
+            var testResult = new TestResult
+            {
+                Id = Guid.NewGuid().ToString(),
+                Input = request.Input,
+                Output = output,
+                UserId = userId
+            };
 
             _context.TestResults.Add(testResult);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetTestResult), new { id = testResult.Id }, testResult);
         }
+
 
         // DELETE: api/testresults/5
         [HttpDelete("{id}")]
