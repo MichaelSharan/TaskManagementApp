@@ -73,6 +73,7 @@ namespace TaskManagementApp.Controllers
 
         // PUT: api/testresults/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateTestResult(string id, [FromBody] UpdateTestResultRequest request)
         {
             if (request == null)
