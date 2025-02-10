@@ -7,18 +7,9 @@
             return "NO";
         }
 
-        List<char> digits = input.ToList();
-        digits.Sort((a, b) => b.CompareTo(a)); // Быстрая сортировка по убыванию
+        List<char> digits = GetSortedDigits(input);
 
-        int oddIndex = -1;
-        for (int i = digits.Count - 1; i >= 0; i--)
-        {
-            if ((digits[i] - '0') % 2 == 1)
-            {
-                oddIndex = i;
-                break;
-            }
-        }
+        int oddIndex = FindLastOddDigitIndex(digits);
 
         if (oddIndex == -1)
         {
@@ -26,11 +17,35 @@
         }
 
         char oddDigit = digits[oddIndex];
-        digits.RemoveAt(oddIndex); // Быстрее, чем сдвиг элементов
+        digits.RemoveAt(oddIndex);
 
-        string result = new string(digits.ToArray()) + oddDigit;
-        result = result.TrimStart('0');
+        string result = CreateLargestOddNumber(digits, oddDigit);
 
         return string.IsNullOrEmpty(result) ? "NO" : result;
+    }
+
+    private static List<char> GetSortedDigits(string input)
+    {
+        List<char> digits = input.ToList();
+        digits.Sort((a, b) => b.CompareTo(a));
+        return digits;
+    }
+
+    private static int FindLastOddDigitIndex(List<char> digits)
+    {
+        for (int i = digits.Count - 1; i >= 0; i--)
+        {
+            if ((digits[i] - '0') % 2 == 1)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static string CreateLargestOddNumber(List<char> digits, char oddDigit)
+    {
+        string result = new string(digits.ToArray()) + oddDigit;
+        return result.TrimStart('0'); // Убираем ведущие нули
     }
 }
