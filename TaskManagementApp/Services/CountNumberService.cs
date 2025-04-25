@@ -31,7 +31,7 @@
         return digits;
     }
 
-    private static int FindLastOddDigitIndex(List<char> digits)
+    public static int FindLastOddDigitIndex(List<char> digits)
     {
         for (int i = digits.Count - 1; i >= 0; i--)
         {
@@ -43,7 +43,7 @@
         return -1;
     }
 
-    private static string CreateLargestOddNumber(List<char> digits, char oddDigit)
+    public static string CreateLargestOddNumber(List<char> digits, char oddDigit)
     {
         string result = new string(digits.ToArray()) + oddDigit;
         return result.TrimStart('0'); // Убираем ведущие нули

@@ -13,6 +13,6 @@ namespace TaskManagementApp.Data
         }
 
         public DbSet<Test> Tests { get; set; }
-        public DbSet<TestResult> TestResults { get; set; }
+        public virtual DbSet<TestResult> TestResults { get; set; }
     }
 }
